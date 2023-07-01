@@ -1,0 +1,5 @@
+#!/bin/bash
+
+bluetooth_mac_address='88:AH:HH:14:DD:45'
+
+bluetoothctl connect $bluetooth_mac_address

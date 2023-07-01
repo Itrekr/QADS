@@ -17,6 +17,42 @@ screen -S session /bin/bash
 #+end_src
 
 Also make sure to set the target_machine variable in the script.
+
+** notesearch
+*** What does it do?
+It searches for lines inside (org-)files inside a specified directory and outputs those lines with a whitespace between them so they can be used with other commands. This is useful if you have a lot of notes or other specific files inside a directory that you need to search inside of for a specific line.
+
+The script can be used as follows:
+
+#+begin_src bash
+notesearch "desired match"
+echo "desired match" | notesearch
+#+end_src
+
+Make sure to change the note_directory to the directory you want to search inside of.
+You can also modify the file type to search for other files like markdown files or txt files.
+
+** dockcheck
+*** What does it do?
+It checks how many displays are connected and sets the corresponding xrandr output settings. As everyones setup is different this script requires quite a bit of modifying, but it's very useful if you have a setup in which you frequently switch between one and multiple screens (for example when using a docking station).
+It also sets a specific wallpaper for each of the two possible conditions. These lines can be removed if desired.
+
+** urlripper
+*** What does it do?
+It downloads mp3's that are specified in a file with yt-dlp. This is incredibly useful if you want to quickly rip a large set of your favourite royalty free songs straight from YouTube. Simply put the each of the url's on a seperate line in a file and run.
+
+*** Requirements
+This script needs yt-dlp to run so check [[https://github.com/yt-dlp/yt-dlp][their repo]] for installation instructions.
+
+* Scripts that should be aliasses
 ** dailywords
 *** What does it do?
-It's a simple script that could have just as easily have been a bash alias. It counts the words in a file with the current date in the format YYYY-mm-dd.org. This is very useful if you have a daily notes file with this format that you want to track. It is useful if you want to use that daily word count for other operations like a polybar module or some sort of productivity contraption.
+It counts the words in a file with the current date in the format YYYY-mm-dd.org. This is very useful if you have a daily notes file with this format that you want to track. It is useful if you want to use that daily word count for other operations like a polybar module or some sort of productivity contraption.
+
+** headset
+*** What does it do?
+It connects to a specific bluetooth device specified by 'bluetooth_mac_address'. It is quite nice if your bluetooth device has problems autoconnecting with your machine so you can force it to do so.
+
+** undock
+*** What does it do?
+After removing a laptop from its docking station it can be ran to turn on the disabled display if it has been turned off by 'dockcheck'

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Check if yt-dlp is installed
+if ! command -v yt-dlp &> /dev/null
+then
+    echo "yt-dlp is not installed. Please install it first."
+    exit
+fi
+
+# Check if a file is provided as an argument
+if [ -z "$1" ]
+then
+    echo "Please provide a file name as an argument."
+    exit
+fi
+
+# Read URLs from the file and download the MP3 audio
+while read url; do
+    echo "Downloading audio from $url"
+    yt-dlp --extract-audio --audio-format mp3 $url
+done < "$1"
