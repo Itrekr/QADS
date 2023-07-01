@@ -1,0 +1,3 @@
+#!/bin/bash
+notes_folder='/home/username/Notes/'
+cat $notes_folder$(date +%Y-%m-%d).org 2>/dev/null | wc -w 

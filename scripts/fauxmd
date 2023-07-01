@@ -1,0 +1,19 @@
+#!/bin/bash
+
+target_machine='username@192.168.0.1'
+
+while true; do
+  # Prompt the user for a command to send to the remote screen session
+  read -p "$: " command
+
+  # Check if user entered "exit" (case-insensitive)
+  if [[ "$command" == [Ee][Xx][Ii][Tt] ]]; then
+    break
+  fi
+
+  # Append newline character to command
+  command_with_newline="$command"$'\n'
+
+  # Send the command to the remote screen session using ssh
+  ssh $target_machine "screen -S session -X stuff '$command_with_newline'" 2>/dev/null
+done

@@ -1,0 +1,22 @@
+* QADS
+** About
+QADS stands for 'Quick And Dirty Scripts'. It is a directory with small bash scripts I have made throughout the years that make my life easier. Some are very specific to my use cases, but some might be benificial for other people as well.
+
+* Scripts
+** fauxmd
+*** What does it do?
+This script is used to interact with a visible shell prompt on a remote machine. Normally when using commands over ssh, you can only see the output of that command in the output of the ssh session, but not on the remote machine. This is logical, since most machines that you can access through ssh are headless servers. In my case however I have ssh access to an old monitor with a visible terminal on display. This script makes it possible to display the sent commands on the terminal through a faux command prompt that sends the users input to a screen session.
+
+*** Requirements
+For this script to work the user should have the program 'screen' installed on both machines, have a screen session named 'session' running on the remote machine and have passwordless access to the remote machine over ssh (through ssh-keys for example).
+
+In order to be able to connect to the remote machine the following command should be ran first on the remote machine:
+
+#+begin_src bash
+screen -S session /bin/bash
+#+end_src
+
+Also make sure to set the target_machine variable in the script.
+** dailywords
+*** What does it do?
+It's a simple script that could have just as easily have been a bash alias. It counts the words in a file with the current date in the format YYYY-mm-dd.org. This is very useful if you have a daily notes file with this format that you want to track. It is useful if you want to use that daily word count for other operations like a polybar module or some sort of productivity contraption.
