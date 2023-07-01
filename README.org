@@ -39,7 +39,7 @@ It also sets a specific wallpaper for each of the two possible conditions. These
 
 ** urlripper
 *** What does it do?
-It downloads mp3's that are specified in a file with yt-dlp. This is incredibly useful if you want to quickly rip a large set of your favourite royalty free songs straight from YouTube. Simply put the each of the url's on a seperate line in a file and run.
+It downloads mp3's that are specified in a file with yt-dlp. This is incredibly useful if you want to quickly rip a large set of your favourite royalty free songs straight from YouTube. Simply put each of the url's on a seperate line in a file and run.
 
 *** Requirements
 This script needs yt-dlp to run so check [[https://github.com/yt-dlp/yt-dlp][their repo]] for installation instructions.
