@@ -8,7 +8,7 @@ QADS stands for 'Quick And Dirty Scripts'. It is a directory with small bash scr
 This script is used to interact with a visible shell prompt on a remote machine. Normally when using commands over ssh, you can only see the output of that command in the output of the ssh session, but not on the remote machine. This is logical, since most machines that you can access through ssh are headless servers. In my case however I have ssh access to an old monitor with a visible terminal on display. This script makes it possible to display the sent commands on the terminal through a faux command prompt that sends the users input to a screen session.
 
 *** Requirements
-For this script to work the user should have the program 'screen' installed on both machines, have a screen session named 'session' running on the remote machine and have passwordless access to the remote machine over ssh (through ssh-keys for example).
+For this script to work the user should have the program 'screen' installed on the remote machine and have a session running named 'session'. Also the user should have passworless access to the remote machine over ssh (through ssh-keys for example).
 
 In order to be able to connect to the remote machine the following command should be ran first on the remote machine:
 
