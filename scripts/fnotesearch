@@ -1,0 +1,12 @@
+#!/bin/bash
+
+note_directory="/home/user/Notes/"
+
+# Check if there are piped inputs
+if [[ -p /dev/stdin ]]; then
+    while IFS= read -r line; do
+        grep -rih --include="*.org" --exclude-dir=".Hidden" -E ".*${line// /.*}.*" $note_directory | sed 'G'
+    done
+else
+    grep -rih --include="*.org" --exclude-dir=".Hidden" -E ".*${*// /.*}.*" $note_directory | sed 'G'
+fi

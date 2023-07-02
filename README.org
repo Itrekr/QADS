@@ -32,6 +32,10 @@ echo "desired match" | notesearch
 Make sure to change the note_directory to the directory you want to search inside of.
 You can also modify the file type to search for other files like markdown files or txt files.
 
+** fnotesearch
+*** What does it do?
+The same as notesearch except fuzzy.
+
 ** dockcheck
 *** What does it do?
 It checks how many displays are connected and sets the corresponding xrandr output settings. As everyones setup is different this script requires quite a bit of modifying, but it's very useful if you have a setup in which you frequently switch between one and multiple screens (for example when using a docking station).
