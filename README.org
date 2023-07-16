@@ -57,6 +57,10 @@ It counts the words in a file with the current date in the format YYYY-mm-dd.org
 *** What does it do?
 It connects to a specific bluetooth device specified by 'bluetooth_mac_address'. It is quite nice if your bluetooth device has problems autoconnecting with your machine so you can force it to do so.
 
+** ipchecker
+*** What does it do?
+It checks the host IP in a specified order to easily display the relevant IP in a polybar script. If a user is connected to a tunnel (like in a hack the box scenario) this will be the default IP shown, otherwise it will show the wlan or eth IP.
+
 ** undock
 *** What does it do?
 After removing a laptop from its docking station it can be ran to turn on the disabled display if it has been turned off by 'dockcheck'

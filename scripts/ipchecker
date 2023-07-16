@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+ip a show | grep -v 'state DOWN' | grep -E 'wl|enp|eth|tun' | grep -oP "(?<=inet ).*(?=/)" | tac
+exit 0
