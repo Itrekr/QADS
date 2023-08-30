@@ -1,0 +1,26 @@
+#!/usr/bin/expect -f
+
+# Check if filepath is provided
+if {[llength $argv] == 0} {
+  puts "Usage: $argv0 <filepath>"
+  exit 1
+}
+
+# Store the filepath in a variable
+set filepath [lindex $argv 0]
+
+# Check if the file exists
+if {![file exists $filepath]} {
+  puts "File not found: $filepath"
+  exit 1
+}
+
+# Spawn the openai-cli command
+spawn openai-cli edit $filepath "Please fix any grammatical/spelling mistakes in the following text. Simply reply with the rewritten text without any further context or elaboration. Do note the language of the text. If it's in Dutch, fix the sentence in Dutch. If it's in English, fix the sentence in British English:"
+
+# Wait for the prompt and send 'y' to confirm
+expect "? Do you want to apply these changes?"
+send "y\r"
+
+# Wait for the process to complete
+expect eof
