@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Check if filepath is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <filepath>"
+  exit 1
+fi
+
+# Store the filepath in a variable
+filepath="$1"
+
+# Check if the file exists
+if [ ! -f "$filepath" ]; then
+  echo "File not found: $filepath"
+  exit 1
+fi
+
+# Run the openai-cli command
+openai-cli edit -y "$filepath" "Los alle grammaticale fouten op in de volgende tekst. Reageer enkel en alleen met de verbeterde tekst, zonder verdere context of uitleg. Als er spellingsfouten, stijlfouten of andere taalproblemen in staan mag je die ook verbeteren: "

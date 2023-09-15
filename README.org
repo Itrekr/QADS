@@ -48,12 +48,12 @@ It downloads mp3's that are specified in a file with yt-dlp. This is incredibly 
 *** Requirements
 This script needs yt-dlp to run so check [[https://github.com/yt-dlp/yt-dlp][their repo]] for installation instructions.
 
-** openai_grammar.exp
+** openai_grammar
 *** What does it do?
-It takes the content of a file and corrects its grammar in either Dutch or English whilst circumventing the need for user confirmation of those corrections. The prompt inside the script can obviously be edited to serve other needs as well.
+It takes the content of a file and corrects its grammar based on the instructions in the prompt. The current prompt does it for the Dutch language. The prompt inside the script can obviously be edited to serve other needs as well.
 
 *** Requirements
-This script is not a bash script, but runs using the program 'expect'. This is one of it's dependencies alongside [[https://github.com/LevitatingBusinessMan/openai-cli][LevitatingBusinessMan's 'openai-cli']] which requires an API-Key.
+This requires [[https://github.com/LevitatingBusinessMan/openai-cli][LevitatingBusinessMan's 'openai-cli']] which requires an API-Key.
 
 * Scripts that should be aliasses
 ** dailywords
