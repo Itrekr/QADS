@@ -3,6 +3,13 @@
 QADS stands for 'Quick And Dirty Scripts'. It is a directory with small bash scripts I have made throughout the years that make my life easier. Some are very specific to my use cases, but some might be benificial for other people as well.
 
 * Scripts
+** htbscript
+*** What does it do?
+This script creates a folder inside a set HTB directory in which it will automate the first steps of hacking a HTB machine. It will save nmap results and add machines to the /etc/hosts file if needed with 'hed'.
+
+*** Requirements
+https://github.com/credmp/hed
+
 ** fauxmd
 *** What does it do?
 This script is used to interact with a visible shell prompt on a remote machine. Normally when using commands over ssh, you can only see the output of that command in the output of the ssh session, but not on the remote machine. This is logical, since most machines that you can access through ssh are headless servers. In my case however I have ssh access to an old monitor with a visible terminal on display. This script makes it possible to display the sent commands on the terminal through a faux command prompt that sends the users input to a screen session.
@@ -54,6 +61,10 @@ It takes the content of a file and corrects its grammar based on the instruction
 
 *** Requirements
 This requires [[https://github.com/LevitatingBusinessMan/openai-cli][LevitatingBusinessMan's 'openai-cli']] which requires an API-Key.
+
+** ORUI-reload
+*** What does it do?
+It sends the f5 command to a program with the name ORUI in order to be able to use this in macro's.
 
 * Scripts that should be aliasses
 ** dailywords

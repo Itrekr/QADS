@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Base directory - change this to fit your setup
+# Make sure you place all HTB related files in a single directory specified below so it can find both your VPN file and create folders accordingly.
+BASE_DIR="CHANGE_THIS_TO_YOUR_HTB_DIRECTORY"
+
+# Step 1: Check for tun0 interface and start OpenVPN if needed
+if ! ip addr show tun0 &> /dev/null; then
+    sudo openvpn "$BASE_DIR/*.ovpn" &
+    sleep 5 # Give OpenVPN some time to establish a connection
+fi
+
+# Step 2: Ask for the machine name and create folder if it doesn't exist
+read -p "Enter the machine name: " machinename
+directory="$BASE_DIR/$machinename"
+if [ ! -d "$directory" ]; then
+    mkdir -p "$directory"
+fi
+
+# Step 3: Prompt for IP and run nmap scan if output file doesn't exist
+read -p "Enter the IP address: " IP
+nmap_file="$directory/nmap_$machinename.txt"
+if [ ! -e "$nmap_file" ]; then
+    sudo nmap -A $IP > "$nmap_file"
+fi
+
+# Step 4: Check if nmap output contains 'open http' and prompt for 'hed add'
+if grep -C 5 'open  http' "$nmap_file"; then
+    read -p "Do you want to run 'hed add $machinename.htb $IP'? [y/n]: " confirm
+    if [[ $confirm == 'y' || $confirm == 'Y' ]]; then
+        hed add "$machinename.htb" $IP
+    fi
+
+    # Step 5: Prompt to run a new nmap scan on machinename.htb if output file doesn't exist
+    nmap2_file="$directory/nmap2_$machinename.txt"
+    read -p "Do you want to run a new nmap scan on $machinename.htb? [y/n]: " confirm2
+    if [[ $confirm2 == 'y' || $confirm2 == 'Y' ]]; then
+        if [ ! -e "$nmap2_file" ]; then
+            sudo nmap -A "$machinename.htb" > "$nmap2_file"
+        fi
+    fi
+fi

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Store the ID of the currently active window
+active_window=$(xdotool getactivewindow)
+
+# Find the Chromium window by name
+window_id=$(xdotool search --name "ORUI")
+
+if [ ! -z "$window_id" ]; then
+  # Activate the Chromium window, send F5, then reactivate the original window
+  xdotool windowactivate --sync $window_id key F5
+  xdotool windowactivate --sync $active_window
+fi
