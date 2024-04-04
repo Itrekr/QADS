@@ -2,11 +2,68 @@
 
 note_directory="/home/user/Notes/"
 
-# Check if there are piped inputs
-if [[ -p /dev/stdin ]]; then
-    while IFS= read -r line; do
-        grep -rih --include="*.org" --exclude-dir=".Hidden" -E ".*${line// /.*}.*" $note_directory | sed 'G'
-    done
-else
-    grep -rih --include="*.org" --exclude-dir=".Hidden" -E ".*${*// /.*}.*" $note_directory | sed 'G'
+# Function to display the entire file content prefixed by its title
+display_file_with_title() {
+    local file="$1"
+    echo "Title: $(extract_title "$file")"
+    cat "$file"
+    echo -e "\n"
+}
+
+# Function to extract the title from a file
+extract_title() {
+    awk '/^#\+title:/ {print substr($0, index($0,$2)); exit}' "$1"
+}
+
+# Function to search within a file and conditionally display results
+search_and_display() {
+    local file="$1"
+    local search_term="$2"
+    local include_title="$3"
+    local display_full_file="$4"
+
+    if [[ "$display_full_file" == "true" ]]; then
+        display_file_with_title "$file"
+    else
+        if [[ "$include_title" == "true" ]]; then
+            local title=$(extract_title "$file")
+            # Ensure we don't display the file path. Use -h to suppress the filename in grep output.
+            grep -ih --exclude-dir=".Hidden" -E "$search_term" "$file" | while IFS= read -r line; do
+                echo "$title: $line"
+                echo  # Add an empty line for clarity between matches
+            done
+        else
+            # Search for the term, exclude file path and line numbers
+            grep -ih --exclude-dir=".Hidden" -E "$search_term" "$file" | sed 'G'
+        fi
+    fi
+}
+
+include_title=false
+display_full_file=false
+
+# Process flags
+while getopts "ft" option; do
+    case $option in
+        f) display_full_file=true ;;
+        t) include_title=true ;;
+        *) echo "Usage: $(basename $0) [-f] [-t] search_term" >&2
+           exit 1 ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+# Check if search term is provided
+if [ $# -eq 0 ]; then
+    echo "Error: No search term provided."
+    echo "Usage: $(basename $0) [-f] [-t] search_term"
+    exit 1
 fi
+
+search_term="$*"
+
+# Find matching files and process them
+while IFS= read -r file; do
+    search_and_display "$file" "$search_term" "$include_title" "$display_full_file"
+done < <(grep -ril --exclude-dir=".Hidden" -E ".*$search_term.*" "$note_directory")
