@@ -41,7 +41,10 @@ You can also modify the file type to search for other files like markdown files 
 
 ** fnotesearch
 *** What does it do?
-The same as notesearch except fuzzy.
+The same as notesearch except fuzzy and with two optional flags:
+
+The -f flag makes it so if a match is found, the entire content of the file is printed in terminal.
+The -t flag adds the title of the org file in front of the output so it's easier to find with org-roam.
 
 ** dockcheck
 *** What does it do?
@@ -65,6 +68,10 @@ This requires [[https://github.com/LevitatingBusinessMan/openai-cli][LevitatingB
 ** ORUI-reload
 *** What does it do?
 It sends the f5 command to a program with the name ORUI in order to be able to use this in macro's.
+
+** Propomo
+*** What does it do?
+It starts a 3 minute timer in which the user is expected to work. After the 3 minutes are over, the user is prompted with a zenity window and asked how that session went. Based on the users chosen level of focus, a break is started and after that a new work session begins, with the goal of eventually reaching flow. All of this is logged for analysis purposes.
 
 * Scripts that should be aliasses
 ** dailywords

@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Log file path
+LOG_FILE="focus_log.csv"
+
+# Check if log file exists, if not, create it
+if [ ! -f "$LOG_FILE" ]; then
+    echo "Date,Time,Focus Level,Break Duration,Work Duration" >> "$LOG_FILE"
+fi
+
+# Function to start termdown and follow up with notify-send
+termdown_notify(){
+    local duration=$1
+    local message=$2
+    
+    termdown $duration
+    notify-send "$message"
+}
+
+# Main Loop
+while true; do
+    # Start the initial work session
+    termdown_notify 3m "Work session is over"
+
+    # Prompt the user
+    echo "How do you feel?"
+    options=("Distracted" "Ok" "Focussed" "Flow")
+    select opt in "${options[@]}"; do
+        case $opt in
+            "Distracted")
+                break_duration="15m"
+                work_duration="3m"
+                break
+                ;;
+            "Ok")
+                break_duration="9m"
+                work_duration="9m"
+                break
+                ;;
+            "Focussed")
+                break_duration="5m"
+                work_duration="25m"
+                break
+                ;;
+            "Flow")
+                break_duration="0m"
+                work_duration="33m"
+                break
+                ;;
+            *) echo "invalid option $REPLY";;
+        esac
+    done
+
+    # Log the user choice
+    echo "$(date '+%Y-%m-%d %H:%M:%S'),$opt,$break_duration,$work_duration" >> "$LOG_FILE"
+    
+    # Handle the break if applicable
+    if [[ $break_duration != "0m" ]]; then
+        termdown_notify $break_duration "Break is over, time to work!"
+    fi
+
+    # Start the work session
+    termdown_notify $work_duration "Work session is over, how did it go?"
+done
