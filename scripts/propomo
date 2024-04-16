@@ -8,57 +8,66 @@ if [ ! -f "$LOG_FILE" ]; then
     echo "Date,Time,Focus Level,Break Duration,Work Duration" >> "$LOG_FILE"
 fi
 
-# Function to start termdown and follow up with notify-send
-termdown_notify(){
+# Function to start termdown and follow up with Zenity for GUI-based interaction instead of notify-send
+termdown_zenity_prompt(){
     local duration=$1
     local message=$2
     
     termdown $duration
-    notify-send "$message"
+    zenity --info --text="$message" --title="Notification"
 }
+
+# Function to get the user's focus level via Zenity
+get_focus_level_via_zenity(){
+    zenity --list --title="Session Feedback" \
+           --column="Select" \
+           "Distracted" "Ok" "Focussed" "Flow" "Done"
+}
+
+# Initial 3-Minute Timer
+termdown_zenity_prompt 3m "The initial work session is over. How did it go?"
 
 # Main Loop
 while true; do
-    # Start the initial work session
-    termdown_notify 3m "Work session is over"
+    # Prompt the user for how their work session went
+    opt=$(get_focus_level_via_zenity)
 
-    # Prompt the user
-    echo "How do you feel?"
-    options=("Distracted" "Ok" "Focussed" "Flow")
-    select opt in "${options[@]}"; do
-        case $opt in
-            "Distracted")
-                break_duration="15m"
-                work_duration="3m"
-                break
-                ;;
-            "Ok")
-                break_duration="9m"
-                work_duration="9m"
-                break
-                ;;
-            "Focussed")
-                break_duration="5m"
-                work_duration="25m"
-                break
-                ;;
-            "Flow")
-                break_duration="0m"
-                work_duration="33m"
-                break
-                ;;
-            *) echo "invalid option $REPLY";;
-        esac
-    done
+    case $opt in
+        "Distracted")
+            break_duration="15m"
+            work_duration="3m"
+            ;;
+        "Ok")
+            break_duration="9m"
+            work_duration="17m"
+            ;;
+        "Focussed")
+            break_duration="5m"
+            work_duration="25m"
+            ;;
+        "Flow")
+            break_duration="0m"
+            work_duration="33m"
+            zenity --info --text="Entering a new work session. Keep up the Flow!" --title="Flow State"
+            ;;
+        "Done")
+            zenity --info --text="Thank you for using the focus timer. Have a great day!" --title="Session Complete"
+            exit 0
+            ;;
+        *)
+            zenity --error --text="Invalid option selected, please try again."
+            continue
+            ;;
+    esac
 
-    # Log the user choice
+    # Log the user's choice
     echo "$(date '+%Y-%m-%d %H:%M:%S'),$opt,$break_duration,$work_duration" >> "$LOG_FILE"
     
     # Handle the break if applicable
     if [[ $break_duration != "0m" ]]; then
-        termdown_notify $break_duration "Break is over, time to work!"
+        termdown_zenity_prompt $break_duration "Break is over, time to work!"
     fi
-
-    # Start the work session
-    termdown_notify $work_duration "Work session is over, how did it go?"
+    
+    # Start the next work session immediately after Flow or after break
+    termdown_zenity_prompt $work_duration "Work session is over, how did it go?"
 done
