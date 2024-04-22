@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+
+import time
+import csv
+import subprocess
+from datetime import datetime
+from collections import OrderedDict
+
+def get_project_names():
+    """Reads the last 10 unique project names from the CSV file."""
+    try:
+        with open('/home/user/log.csv', 'r', newline='') as file:
+            reader = csv.reader(file)
+            projects = OrderedDict()
+            for row in reader:
+                if row:
+                    projects[row[1]] = None  # Use an ordered dictionary to maintain order and uniqueness
+            return list(projects.keys())[-10:]  # Return the last 10 unique project names
+    except FileNotFoundError:
+        return []
+
+def main():
+    projects = get_project_names()
+    project = run_zenity_entry('Project Name', 'Enter the project name you are working on or select one:\n' + ', '.join(projects))
+
+    while True:
+        start_time = time.time()
+        subprocess.run(['zenity', '--info', '--title', 'Work timer started', '--text', 'Press OK to end session.'])
+
+        session_duration = time.time() - start_time
+        print(f"Work session ended. Duration: {format_time(session_duration)}")
+
+        rating = run_zenity_entry('Session Rating', 'Rate your work session from 1 to 10:')
+        while not rating.isdigit() or not (1 <= int(rating) <= 10):
+            rating = run_zenity_entry('Session Rating', 'Invalid input. Please enter a number from 1 to 10:')
+
+        break_duration = session_duration * 0.20
+        countdown(int(break_duration))
+
+        subprocess.run(['zenity', '--info', '--title', 'Break Over', '--text', 'Break time is over.'])
+
+        # Append session data to CSV file after the break is over using shell echo
+        append_session_data_via_shell(project, rating, break_duration, session_duration)
+
+        continue_choice = subprocess.run(['zenity', '--question', '--title', 'Continue?', '--text', 'Do you want to start another work session?'], text=True)
+        if continue_choice.returncode != 0:
+            print("Program exiting. Goodbye!")
+            break
+
+def run_zenity_entry(title, text):
+    """Runs a zenity entry dialog and returns stripped and cleaned output."""
+    output = subprocess.run(['zenity', '--entry', '--title', title, '--text', text], capture_output=True, text=True).stdout
+    return output.strip().replace('\r', '').replace('\n', '')
+
+def append_session_data_via_shell(project, rating, break_duration, session_duration):
+    """Append session data to the CSV file using echo command."""
+    command = f'echo "{datetime.now().strftime("%Y-%m-%d %H:%M:%S")},{project},{rating},{int(break_duration)},{int(session_duration)}" >> /home/oscar/Mimisbrunnr/Documents/Emacs/propomo_log.csv'
+    subprocess.run(command, shell=True)
+
+def format_time(seconds):
+    """Convert seconds to a more readable format (hours:minutes:seconds)."""
+    hours, remainder = divmod(int(seconds), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours}h:{minutes}m:{seconds}s"
+
+def countdown(seconds):
+    """Display a countdown with actual seconds remaining using Zenity, quietly handling broken pipe errors."""
+    try:
+        with subprocess.Popen(['zenity', '--progress', '--title', 'Break Time', '--text', 'Initializing countdown...', '--auto-close', '--no-cancel'], stdin=subprocess.PIPE, text=True) as proc:
+            for remaining in range(seconds, -1, -1):
+                percentage = 100 - ((remaining / seconds) * 100)
+                text = f"#Remaining time: {remaining} seconds"
+                try:
+                    proc.stdin.write(f"{int(percentage)}\n{text}\n")
+                    proc.stdin.flush()
+                except BrokenPipeError:
+                    return
+                time.sleep(1)
+            try:
+                proc.stdin.write("100\n#Time's up!\n")
+                proc.stdin.flush()
+            except BrokenPipeError:
+                return
+    except Exception as e:
+        pass
+
+if __name__ == "__main__":
+    main()

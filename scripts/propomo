@@ -1,18 +1,26 @@
 #!/bin/bash
 
 # Log file path
-LOG_FILE="propomo_log.csv"
+LOG_FILE="/home/oscar/Mimisbrunnr/Documents/Emacs/propomo_log.csv"
 
 # Check if log file exists, if not, create it
 if [ ! -f "$LOG_FILE" ]; then
     echo "Date,Time,Focus Level,Break Duration,Work Duration" >> "$LOG_FILE"
 fi
 
-# Function to start termdown and follow up with Zenity for GUI-based interaction instead of notify-send
+# Simple stopwatch function
+stopwatch(){
+    zenity --info --text="Press OK to start timing your flow session." --title="Flow State"
+    start=$(date +%s)
+    zenity --info --text="Work session has started. Close this message to stop timing." --title="Flow State"
+    end=$(date +%s)
+    echo $((end-start))
+}
+
+# Function to start a fixed-duration timer and prompt with Zenity after completion
 termdown_zenity_prompt(){
     local duration=$1
     local message=$2
-    
     termdown $duration
     zenity --info --text="$message" --title="Notification"
 }
@@ -21,53 +29,65 @@ termdown_zenity_prompt(){
 get_focus_level_via_zenity(){
     zenity --list --title="Session Feedback" \
            --column="Select" \
-           "Distracted" "Ok" "Focussed" "Flow" "Done"
+           "Distracted" "Ok" "Focussed" "Flow" \
+           --cancel-label="Done"
 }
 
-# Initial 3-Minute Timer
-termdown_zenity_prompt "3m" "The initial work session is over. How did it go?"
+# Function to log the session details
+log_session(){
+    local focus_level=$1
+    local break_duration=$2
+    local work_duration=$3
+    echo "$(date '+%Y-%m-%d %H:%M:%S'),$focus_level,$break_duration,$work_duration" >> "$LOG_FILE"
+}
 
-# Main Loop
-while true; do
-    # Prompt the user for how their work session went
-    opt=$(get_focus_level_via_zenity)
+# Main Program Loop
+main_loop(){
+    # Start with an initial 3-minute session
+    termdown_zenity_prompt "3m" "The initial work session is over. How did it go?"
 
-    case $opt in
-        "Distracted")
-            break_duration="900"  # Added unit 's' for seconds
-            work_duration="180"
-            ;;
-        "Ok")
-            break_duration="540"
-            work_duration="1020"
-            ;;
-        "Focussed")
-            break_duration="300"
-            work_duration="1500"
-            ;;
-        "Flow")
-            break_duration="0"
-            work_duration="1980"
-            zenity --info --text="Entering a new work session. Keep up the Flow!" --title="Flow State"
-            ;;
-        "Done")
+    while true; do
+        # Prompt the user for how their work session went
+        opt=$(get_focus_level_via_zenity) || opt="Done"
+
+        if [ "$opt" == "Done" ]; then
             zenity --info --text="Thank you for using the focus timer. Have a great day!" --title="Session Complete"
             exit 0
-            ;;
-        *)
-            zenity --error --text="Invalid option selected, please try again."
-            continue
-            ;;
-    esac
+        fi
 
-    # Handle the break if applicable
-    if [ "$break_duration" != "0" ]; then
-        termdown_zenity_prompt $break_duration "Break is over, time to work!"
-    fi
-    
-    # Start the next work session
-    termdown_zenity_prompt $work_duration "Work session is over, how did it go?"
+        declare -A durations=(
+            ["Distracted"]="900 180"
+            ["Ok"]="540 1020"
+            ["Focussed"]="300 1500"
+        )
 
-    # Log the user's choice after completing the work session
-    echo "$(date '+%Y-%m-%d %H:%M:%S'),$opt,$break_duration,$work_duration" >> "$LOG_FILE"
-done
+        if [[ $opt == "Distracted" || $opt == "Ok" || $opt == "Focussed" ]]; then
+            read break_duration work_duration <<< "${durations[$opt]}"
+
+            # Handle the break
+            termdown_zenity_prompt $break_duration "Break is over, time to work!"
+
+            # Start the work session
+            termdown_zenity_prompt $work_duration "Work session is over, how did it go?"
+
+            # Log the user's choice after completing the work session
+            log_session $opt $break_duration $work_duration
+        elif [ "$opt" == "Flow" ]; then
+            # Start the stopwatch function
+            work_duration=$(stopwatch)
+            break_duration=$(echo "scale=0; $work_duration*0.3/1" | bc)  # Calculate 30% of the worked seconds as break time
+
+            # Handle the break after the Flow state
+            termdown_zenity_prompt $break_duration "Flow break is over."
+
+            # Log the user's choice after completing the Flow session
+            log_session $opt $break_duration $work_duration
+
+            # Restart the main loop
+            main_loop
+        fi
+    done
+}
+
+# Start the main program loop
+main_loop

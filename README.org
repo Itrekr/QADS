@@ -73,6 +73,10 @@ It sends the f5 command to a program with the name ORUI in order to be able to u
 *** What does it do?
 It starts a 3 minute timer in which the user is expected to work. After the 3 minutes are over, the user is prompted with a zenity window and asked how that session went. Based on the users chosen level of focus, a break is started and after that a new work session begins, with the goal of eventually reaching flow. All of this is logged for analysis purposes.
 
+** Flowtime
+*** What does it do?
+It asks for a specific project through a zenity window and then starts counting. You keep working until you feel you can't concentrate anymore. Then it will ask how you'd rate your session and starts a break timer which is 20% of the amount of time you worked. After the break it prompts again for a new session. It logs this information in a CSV file for later analysis.
+
 * Scripts that should be aliasses
 ** dailywords
 *** What does it do?
