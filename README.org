@@ -77,6 +77,10 @@ It starts a 3 minute timer in which the user is expected to work. After the 3 mi
 *** What does it do?
 It asks for a specific project through a zenity window and then starts counting. You keep working until you feel you can't concentrate anymore. Then it will ask how you'd rate your session and starts a break timer which is 20% of the amount of time you worked. After the break it prompts again for a new session. It logs this information in a CSV file for later analysis.
 
+** Omarchy-lauch-profiled-webapp
+*** What does it do?
+Omarchy is a Linux distribution based on Arch and Hyprland. The distro comes with a built-in functionality to create webapps by launching chromium-based instances. The only issue, however, is that these instances are chromium-wide. So one can't segment/configure different chromium profiles for different programs. This script takes the submitted URL and parses a 'name' for the profile from this which then launches the proper segmented Chromium instance.
+
 * Scripts that should be aliasses
 ** dailywords
 *** What does it do?

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# omarchy-launch-webapp-profiled
+set -euo pipefail
+
+[[ $# -ge 1 ]] || { echo "usage: $0 <url> [extra chromium args]"; exit 2; }
+url="$1"; shift || true
+
+browser="$(xdg-settings get default-web-browser || true)"
+case "$browser" in
+  google-chrome*|brave-browser*|microsoft-edge*|opera*|vivaldi*|helium-browser*) ;;
+  *) browser="chromium.desktop" ;;
+esac
+
+exec_path=""
+for d in "$HOME/.local/share/applications" "$HOME/.nix-profile/share/applications" "/usr/share/applications"; do
+  f="$d/$browser"
+  if [[ -r "$f" ]]; then
+    # Read first Exec= line, then take its first word as the binary
+    exec_line="$(awk -F= '/^Exec=/{print $2; exit}' "$f" 2>/dev/null || true)"
+    if [[ -n "$exec_line" ]]; then
+      set -- $exec_line
+      exec_path="$1"
+      break
+    fi
+  fi
+done
+
+if [[ -z "${exec_path:-}" ]]; then
+  for cand in chromium google-chrome-stable google-chrome brave-browser microsoft-edge vivaldi opera; do
+    if command -v "$cand" >/dev/null 2>&1; then exec_path="$(command -v "$cand")"; break; fi
+  done
+fi
+[[ -n "${exec_path:-}" ]] || { echo "could not determine a chromium-family executable"; exit 1; }
+
+# ---- derive slug from URL host ----
+host="${url#*://}"; host="${host%%/*}"; host="${host%%\?*}"; host="${host%%\#*}"
+host="${host##*@}"; host="${host%%:*}"; host="$(printf '%s' "$host" | tr '[:upper:]' '[:lower:]')"; host="${host#www.}"
+IFS='.' read -r -a labels <<< "$host"
+if (( ${#labels[@]} >= 3 )); then slug_raw="${labels[-2]}"; else slug_raw="${labels[0]:-app}"; fi
+slug="$(printf '%s' "$slug_raw" | tr -cd '[:alnum:]-')"; [[ -n "$slug" ]] || slug="app"
+
+class="${slug}-chromium"
+profile_dir="$HOME/.config/chromium-${slug}"
+
+# ---- launch ----
+exec setsid uwsm app -- \
+  "$exec_path" \
+  --class="$class" \
+  --user-data-dir="$profile_dir" \
+  --app="$url" \
+  "$@"
